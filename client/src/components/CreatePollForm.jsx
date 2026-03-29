@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './CreatePollForm.css';
+import { pollService } from '../services/apiClient';
+import styles from './CreatePollForm.module.css';
 
 export default function createPollForm() {
     const [question, setQuestion] = useState('');
@@ -31,40 +32,42 @@ export default function createPollForm() {
             navigate(`/poll/${data.id}`);
         } catch (error) {
             console.error('Error:', error);
-            alert(error.message || 'שגיאת שרת');
+            alert(error.message || 'Server error');
         }
     };
 
     return (
-        <form onSubmit={handleSubmit} className="poll-form">
+        <form onSubmit={handleSubmit} className={styles.pollForm}>
             <input
-                type="text" placeholder="what is your question" value={question}
+                className={styles.inputField}
+                type="text" placeholder="What is your question" value={question}
                 onChange={(e) => setQuestion(e.target.value)} required
             />
             <input
-                type="text" placeholder="Your name (poll creator)" value={username}
+                className={styles.inputField}
+                type="text" placeholder='Your name (poll creator)' value={username}
                 onChange={(e) => setUsername(e.target.value)} required
             />
 
-            <div className="options-container">
-                <span className="options-title">אפשרויות (עד 8):</span>
+            <div className={styles.optionsContainer}>
+                <span className={styles.optionsTitle}>אפשרויות (עד 8):</span>
                 {options.map((opt, index) => (
-                    <div key={index} className="option-wrapper">
-                        <input
-                            type="text" placeholder={`option ${index + 1}`} value={opt}
-                            onChange={(e) => handleOptionChange(index, e.target.value)} required
-                        />
-                    </div>
+                    <input
+                        key={index}
+                        className={styles.inputField}
+                        type="text" placeholder={`option ${index + 1}`} value={opt}
+                        onChange={(e) => handleOptionChange(index, e.target.value)} required
+                    />
                 ))}
             </div>
 
             {options.length < 8 && (
-                <button type="button" onClick={addOption} className="add-option-btn">
-                    + add option
+                <button type="button" onClick={addOption} className={styles.addOptionBtn}>
+                    + Add option
                 </button>
             )}
 
-            <button type="submit" className="submit-btn">
+            <button type="submit" className={styles.submitBtn}>
                 Create Poll
             </button>
         </form>

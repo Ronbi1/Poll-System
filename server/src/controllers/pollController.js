@@ -1,11 +1,10 @@
 const db = require('../config/db');
 
 exports.createPoll = async (req, res) => {
-  const { question, options, creator_username } = req.body;
+  const { question, creator_username, options } = req.body;
 
   try {
-    await db.query('BEGIN');
-
+    // 1. יצירת הסקר בטבלת polls
     const pollResult = await db.query(
       'INSERT INTO polls (question, creator_username) VALUES ($1, $2) RETURNING id',
       [question, creator_username]
@@ -13,16 +12,18 @@ exports.createPoll = async (req, res) => {
 
     const pollId = pollResult.rows[0].id;
 
-    for (const text of options) {
-      await db.query('INSERT INTO options (poll_id, text) VALUES ($1, $2)',
-        [pollId, text]
-      );
-    }
 
-    await db.query('COMMIT');
-    res.status(201).json({ id: pollId, message: 'Poll created successfully' });
+    const optionPromises = options.map(option =>
+      db.query(
+        'INSERT INTO poll_options (poll_id, text) VALUES ($1, $2)',
+        [pollId, option]
+      )
+    );
+
+    await Promise.all(optionPromises);
+
+    res.status(201).json({ id: pollId, message: 'Poll created successfully!' });
   } catch (error) {
-    await db.query('ROLLBACK');
     console.error('Error creating poll:', error);
     res.status(500).json({ error: 'Failed to create poll' });
   }

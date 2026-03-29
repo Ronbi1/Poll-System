@@ -4,9 +4,10 @@
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    background: white;
+    background-color: #1e1e2e;
     direction: rtl;
-    /* תמיכה בעברית */
+    color: white;
+
 }
 
 .question {
@@ -19,6 +20,7 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    color: black;
 }
 
 .optionItem {

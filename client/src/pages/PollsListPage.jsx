@@ -21,6 +21,19 @@ export default function PollsListPage() {
             });
     }, []);
 
+    // const deletePoll = async (pollId) => {
+    //     const isConfirmed = window.confirm('Are you sure you want to delete this poll?');
+    //     if (!isConfirmed) return;
+
+    //     try {
+    //         await pollService.deletePoll(pollId);
+    //         setPolls(prevPolls => prevPolls.filter(poll => poll.id !== pollId));
+    //     } catch (error) {
+    //         console.error('Delete error:', error);
+    //         alert('Failed to delete poll');
+    //     }
+    // }
+
     if (loading) return <div>Loading polls...</div>;
     if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
 
@@ -38,6 +51,20 @@ export default function PollsListPage() {
                             <Link to={`/poll/${poll.id}`} style={{ color: '#007bff', fontWeight: 'bold' }}>
                                 Vote & View Results →
                             </Link>
+
+                            {/* <button
+                                onClick={() => deletePoll(poll.id)}
+                                style={{
+                                    backgroundColor: '#dc3545',
+                                    color: 'white',
+                                    border: 'none',
+                                    padding: '8px 12px',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                Delete
+                            </button> */}
                         </div>
                     ))
                 )}

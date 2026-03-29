@@ -10,8 +10,6 @@ router.post('/', pollController.createPoll);
 router.get('/:id', pollController.getPoll);
 
 //submit
-router.post('/:id/submit', (req, res) => {
-    res.status(200).json({ message: `Submit vote ${req.params.id} endpoint ready` });
-});
+router.post('/:id/submit', pollController.submitVote);
 
 module.exports = router;

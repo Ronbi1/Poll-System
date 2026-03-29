@@ -32,27 +32,24 @@ exports.createPoll = async (req, res) => {
 exports.getPoll = async (req, res) => {
   const { id } = req.params;
   try {
-    // 1. שליפת פרטי הסקר
     const pollResult = await db.query('SELECT * FROM polls WHERE id = $1', [id]);
+    if (pollResult.rows.length === 0) return res.status(404).json({ error: 'Poll not found' });
 
-    if (pollResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Poll not found' });
-    }
-
-    // 2. שליפת האפשרויות וספירת הקולות לכל אפשרות
+    // שאילתה מתוקנת וחסינה
     const optionsResult = await db.query(`
-          SELECT o.id, o.text, COUNT(v.id) as votes 
-          FROM poll_options o 
-          LEFT JOIN votes v ON o.id = v.option_id 
-          WHERE o.poll_id = $1 
-          GROUP BY o.id
-        `, [id]);
+      SELECT 
+        po.id, 
+        po.text, 
+        COALESCE(count(v.id), 0)::int AS votes_count
+      FROM poll_options po
+      LEFT JOIN votes v ON po.id = v.option_id
+      WHERE po.poll_id = $1
+      GROUP BY po.id
+    `, [id]);
 
     const poll = pollResult.rows[0];
-    poll.options = optionsResult.rows; // חיבור האפשרויות לאובייקט הסקר
-
-    res.status(200).json(poll);
-
+    poll.options = optionsResult.rows;
+    res.json(poll);
   } catch (error) {
     console.error('Error fetching poll:', error);
     res.status(500).json({ error: 'Failed to fetch poll' });
@@ -64,20 +61,24 @@ exports.submitVote = async (req, res) => {
   const { option_id, username } = req.body;
 
   try {
+    // בדיקה שכל הנתונים הגיעו
+    if (!option_id || !username) {
+      return res.status(400).json({ error: 'Missing option_id or username' });
+    }
+
     await db.query(
-      'INSERT INTO votes (poll_id, option_id, username) VALUES (1$, 2$, 3$)',
+      'INSERT INTO votes (poll_id, option_id, username) VALUES ($1, $2, $3)',
       [poll_id, option_id, username]
     );
 
     res.status(200).json({ success: true, message: 'Vote submitted successfully' });
   } catch (error) {
-    // טיפול חכם בשגיאות: בדיקה אם המשתמש כבר הצביע
-    // 23505 זהו קוד השגיאה של PostgreSQL ל"הפרת חוק ייחודיות" (Unique Constraint)
+    // קוד 23505 ב-Postgres אומר שהמשתמש כבר הצביע (Unique Constraint)
     if (error.code === '23505') {
-      return res.status(409).json({ error: 'User has already voted on this poll' });
+      return res.status(409).json({ error: 'כבר הצבעת לסקר זה!' });
     }
 
-    console.error('Error submitting vote:', error);
+    console.error('Error submitting vote:', error); // זה מה שידפיס לנו את הבעיה בטרמינל
     res.status(500).json({ error: 'Failed to submit vote' });
   }
-}
+};

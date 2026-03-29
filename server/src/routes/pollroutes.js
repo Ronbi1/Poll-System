@@ -3,6 +3,9 @@ const router = express.Router();
 const pollController = require('../controllers/pollController');
 
 
+//get all poll
+router.get('/', pollController.getAllPolls);
+
 //create poll
 router.post('/', pollController.createPoll);
 

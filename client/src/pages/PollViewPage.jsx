@@ -42,6 +42,18 @@ export default function PollViewPage() {
     // חישוב סך כל הקולות לטובת אחוזים
     const totalVotes = poll.options.reduce((sum, opt) => sum + Number(opt.votes), 0);
 
+    const sharePoll = () => {
+        const url = window.location.href; // הלינק הישיר לסקר
+        navigator.clipboard.writeText(url);
+        alert('Link copied to clipboard! Share it with your friends.');
+    };
+
+    const handleShare = () => {
+        const pollUrl = window.location.href;
+        navigator.clipboard.writeText(pollUrl);
+        alert("Poll link copied to clipboard!");
+    };
+
     return (
         <div className={styles.container}>
             <h2>{poll.question}</h2>
@@ -77,15 +89,20 @@ export default function PollViewPage() {
                         </div>
                     );
                 })}
+                <button onClick={handleShare} style={{ marginTop: '10px', padding: '10px', cursor: 'pointer' }}>
+                    🔗 Share Poll
+                </button>
             </div>
 
             {!voted ? (
                 <button className={styles.voteBtn} onClick={handleVote} disabled={!selectedOption}>
                     Submmit vote✅
                 </button>
+
             ) : (
                 <p className={styles.votedMessage}>Theanks for your vote 🙏</p>
             )}
+
         </div>
     );
 }

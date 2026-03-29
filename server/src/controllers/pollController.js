@@ -82,3 +82,13 @@ exports.submitVote = async (req, res) => {
     res.status(500).json({ error: 'Failed to submit vote' });
   }
 };
+
+exports.getAllPolls = async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM polls ORDER BY created_at DESC');
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching all polls:', error);
+    res.status(500).json({ error: 'Failed to fetch polls' });
+  }
+};

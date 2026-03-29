@@ -1,6 +1,14 @@
 const API_BASE_URL = 'http://localhost:3000/api';
 
 export const pollService = {
+
+    getAllPolls: async () => {
+        const response = await fetch(`${API_BASE_URL}/polls`);
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Failed to fetch polls');
+        return data;
+    },
+
     createPoll: async (pollData) => {
         const response = await fetch(`${API_BASE_URL}/polls`, {
             method: 'POST',

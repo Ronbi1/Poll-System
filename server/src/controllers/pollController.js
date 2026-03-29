@@ -61,24 +61,33 @@ exports.submitVote = async (req, res) => {
   const { option_id, username } = req.body;
 
   try {
-    // בדיקה שכל הנתונים הגיעו
     if (!option_id || !username) {
       return res.status(400).json({ error: 'Missing option_id or username' });
     }
 
+    // Query 1: Get or create the user by username
+    const userResult = await db.query(
+      `INSERT INTO users (username) VALUES ($1)
+       ON CONFLICT (username) DO UPDATE SET username = EXCLUDED.username
+       RETURNING id`,
+      [username]
+    );
+
+    const user_id = userResult.rows[0].id;
+
+    // Query 2: Insert the vote using user_id
     await db.query(
-      'INSERT INTO votes (poll_id, option_id, username) VALUES ($1, $2, $3)',
-      [poll_id, option_id, username]
+      'INSERT INTO votes (poll_id, option_id, user_id) VALUES ($1, $2, $3)',
+      [poll_id, option_id, user_id]
     );
 
     res.status(200).json({ success: true, message: 'Vote submitted successfully' });
   } catch (error) {
-    // קוד 23505 ב-Postgres אומר שהמשתמש כבר הצביע (Unique Constraint)
     if (error.code === '23505') {
       return res.status(409).json({ error: 'כבר הצבעת לסקר זה!' });
     }
 
-    console.error('Error submitting vote:', error); // זה מה שידפיס לנו את הבעיה בטרמינל
+    console.error('Error submitting vote:', error);
     res.status(500).json({ error: 'Failed to submit vote' });
   }
 };

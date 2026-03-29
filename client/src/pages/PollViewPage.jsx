@@ -8,7 +8,7 @@ export default function PollViewPage() {
     const [poll, setPoll] = useState(null);
     const [selectedOption, setSelectedOption] = useState(null);
     const [username, setUsername] = useState('');
-    const [voted, setVoted] = useState(false); // האם המשתמש הצביע כרגע
+    const [voted, setVoted] = useState(false);
     const [loading, setLoading] = useState(true);
 
     const fetchPollData = () => {
@@ -40,7 +40,7 @@ export default function PollViewPage() {
     if (!poll) return <div>Poll not found</div>;
 
     // חישוב סך כל הקולות לטובת אחוזים
-    const totalVotes = poll.options.reduce((sum, opt) => sum + Number(opt.votes), 0);
+    const totalVotes = poll.options.reduce((sum, opt) => sum + Number(opt.votes_count), 0);
 
     const sharePoll = () => {
         const url = window.location.href; // הלינק הישיר לסקר
@@ -48,11 +48,6 @@ export default function PollViewPage() {
         alert('Link copied to clipboard! Share it with your friends.');
     };
 
-    const handleShare = () => {
-        const pollUrl = window.location.href;
-        navigator.clipboard.writeText(pollUrl);
-        alert("Poll link copied to clipboard!");
-    };
 
     return (
         <div className={styles.container}>
@@ -68,7 +63,7 @@ export default function PollViewPage() {
 
             <div className={styles.optionsList}>
                 {poll.options.map((option) => {
-                    const percentage = totalVotes > 0 ? Math.round((Number(option.votes) / totalVotes) * 100) : 0;
+                    const percentage = totalVotes > 0 ? Math.round((Number(option.votes_count) / totalVotes) * 100) : 0;
 
                     return (
                         <div
@@ -78,7 +73,7 @@ export default function PollViewPage() {
                         >
                             <div className={styles.optionText}>
                                 <span>{option.text}</span>
-                                {voted && <span>{option.votes} votes ({percentage}%)</span>}
+                                {voted && <span>{option.votes_count} votes ({percentage}%)</span>}
                             </div>
 
                             {voted && (
@@ -89,7 +84,7 @@ export default function PollViewPage() {
                         </div>
                     );
                 })}
-                <button onClick={handleShare} style={{ marginTop: '10px', padding: '10px', cursor: 'pointer' }}>
+                <button onClick={sharePoll} style={{ marginTop: '10px', padding: '10px', cursor: 'pointer' }}>
                     🔗 Share Poll
                 </button>
             </div>

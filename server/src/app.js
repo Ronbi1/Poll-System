@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const pollRoutes = require('./routes/pollroutes');
+const pollRoutes = require('./routes/pollRoutes');
 
 const app = express();
 
